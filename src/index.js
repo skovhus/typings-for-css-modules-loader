@@ -4,8 +4,6 @@ import loaderUtils from 'loader-utils';
 import 'colour';
 
 import {
-  filterNonWordClasses,
-  generateNamedExports,
   generateGenericExportInterface,
   filenameToTypingsFilename,
 } from './cssModuleToInterface';
@@ -51,18 +49,7 @@ module.exports = function(input) {
     }
 
     let cssModuleDefinition;
-    if (!query.namedExport) {
-      cssModuleDefinition = generateGenericExportInterface(cssModuleKeys, filename);
-    } else {
-      const [cleanedDefinitions, skippedDefinitions,] = filterNonWordClasses(cssModuleKeys);
-      if (skippedDefinitions.length > 0 && !query.camelCase) {
-        logger('warn', `Typings for CSS-Modules: option 'namedExport' was set but 'camelCase' for the css-loader not.
-The following classes will not be available as named exports:
-${skippedDefinitions.map(sd => ` - "${sd}"`).join('\n').red}
-`.yellow);
-      }
-      cssModuleDefinition = generateNamedExports(cleanedDefinitions);
-    }
+    cssModuleDefinition = generateGenericExportInterface(cssModuleKeys, filename);
     persist.writeToFileIfChanged(cssModuleInterfaceFilename, cssModuleDefinition);
     // mock async step 3 - make `async` return the actual callback again before calling the 'real' css-loader
     delegateToCssLoader(this, input, callback);
